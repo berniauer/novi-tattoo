@@ -68,11 +68,7 @@ jobs:
       - name: Connect to Tailscale
         uses: tailscale/github-action@v2
         with:
-          # Aus Tailscale Admin → Settings → OAuth clients → Create
-          # Scope: "devices" — Tag: tag:ci
-          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
-          oauth-secret:    ${{ secrets.TS_OAUTH_SECRET }}
-          tags: tag:ci
+          authkey: ${{ secrets.TS_AUTHKEY }}
 
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3

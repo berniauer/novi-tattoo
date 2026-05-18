@@ -210,6 +210,7 @@ export default function Hero() {
           <button
             className="group relative overflow-hidden rounded-full border border-white/20 bg-white/5 px-8 py-3.5 font-body text-sm font-medium tracking-[0.12em] text-white uppercase backdrop-blur-sm transition-colors duration-300 hover:border-white/40 hover:bg-white/10 cursor-pointer"
             aria-label="Termin anfragen"
+            onClick={() => document.getElementById("booking")?.scrollIntoView({ behavior: "smooth" })}
           >
             <span className="relative z-10">Termin anfragen</span>
             {/* Hover fill sweep */}

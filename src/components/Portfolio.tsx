@@ -375,12 +375,18 @@ function Lightbox({
 
           {/* CTA */}
           {work.category === "wannados" && work.details.available && (
-            <button className="w-full rounded-full bg-white text-ink font-display font-bold text-[12px] tracking-[0.14em] uppercase py-3.5 hover:bg-white/90 active:scale-[0.98] transition-all cursor-pointer">
+            <button
+              className="w-full rounded-full bg-white text-ink font-display font-bold text-[12px] tracking-[0.14em] uppercase py-3.5 hover:bg-white/90 active:scale-[0.98] transition-all cursor-pointer"
+              onClick={() => { onClose(); setTimeout(() => document.getElementById("booking")?.scrollIntoView({ behavior: "smooth" }), 300); }}
+            >
               Diesen Flash buchen
             </button>
           )}
           {work.category !== "wannados" && (
-            <button className="w-full rounded-full border border-white/20 text-white font-display font-bold text-[12px] tracking-[0.14em] uppercase py-3.5 hover:bg-white/8 active:scale-[0.98] transition-all cursor-pointer">
+            <button
+              className="w-full rounded-full border border-white/20 text-white font-display font-bold text-[12px] tracking-[0.14em] uppercase py-3.5 hover:bg-white/8 active:scale-[0.98] transition-all cursor-pointer"
+              onClick={() => { onClose(); setTimeout(() => document.getElementById("booking")?.scrollIntoView({ behavior: "smooth" }), 300); }}
+            >
               Ähnliches anfragen
             </button>
           )}

@@ -1,18 +1,22 @@
 # ─── PRODUCTION (VPS) ────────────────────────────────────────────────────────
 # Stack: Next.js + Directus
-# Reverse Proxy: nginx (extern, webnet)
-# HTTPS/DNS: Tailscale
+# Reverse Proxy: Nginx Proxy Manager (extern, webnet)
+# HTTPS: Cloudflare + NPM
 #
 # Vorbereitung auf dem VPS (einmalig):
-#   1. Repo clonen nach /srv/novi-tattoo
+#   1. Repo clonen: git clone https://github.com/berniauer/novi-tattoo /srv/novi-tattoo
 #   2. .env.prod + .env.directus anlegen (siehe .env.example)
 #   3. docker compose -f docker-compose.prod.yml up -d
+#   4. In NPM zwei Proxy-Hosts anlegen:
+#      novi-tattoo.auerlytics.at      → novi-tattoo:3000
+#      cms.novi-tattoo.auerlytics.at  → novi-directus:8055
 # ─────────────────────────────────────────────────────────────────────────────
 
 services:
   # ── Next.js App ─────────────────────────────────────────────────────────────
   novi-tattoo:
     image: ghcr.io/berniauer/novi-tattoo:latest
+    container_name: novi-tattoo
     restart: unless-stopped
     expose:
       - "3000"
@@ -22,11 +26,11 @@ services:
         condition: service_healthy
     networks:
       - webnet
-      - internal
 
   # ── Directus CMS ────────────────────────────────────────────────────────────
   directus:
     image: directus/directus:11
+    container_name: novi-directus
     restart: unless-stopped
     expose:
       - "8055"
@@ -36,14 +40,13 @@ services:
       - directus_extensions:/directus/extensions
     env_file: .env.directus
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8055/server/health"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:8055/server/health"]
       interval: 20s
       timeout: 5s
       retries: 5
       start_period: 30s
     networks:
       - webnet
-      - internal
 
 volumes:
   directus_db:
@@ -52,6 +55,4 @@ volumes:
 
 networks:
   webnet:
-    external: true   # nginx reverse proxy läuft in diesem Netzwerk
-  internal:
-    driver: bridge   # interne Kommunikation Next.js ↔ Directus
+    external: true

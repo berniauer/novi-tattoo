@@ -1,11 +1,12 @@
 # ─── PRODUCTION (VPS) ────────────────────────────────────────────────────────
-# Vollständiger Stack: Next.js + Directus + Caddy (HTTPS)
+# Stack: Next.js + Directus
+# Reverse Proxy: nginx (extern, webnet)
+# HTTPS/DNS: Tailscale
 #
 # Vorbereitung auf dem VPS (einmalig):
-#   1. Repo clonen: git clone https://github.com/berniauer/novi-tattoo /opt/novi-tattoo
+#   1. Repo clonen nach /srv/novi-tattoo
 #   2. .env.prod + .env.directus anlegen (siehe .env.example)
-#   3. Caddyfile anpassen (Domain eintragen)
-#   4. docker compose -f docker-compose.prod.yml up -d
+#   3. docker compose -f docker-compose.prod.yml up -d
 # ─────────────────────────────────────────────────────────────────────────────
 
 services:
@@ -19,9 +20,9 @@ services:
     depends_on:
       directus:
         condition: service_healthy
-    labels:
-      caddy: "${DOMAIN:-novi-tattoo.local}"
-      caddy.reverse_proxy: "{{upstreams 3000}}"
+    networks:
+      - webnet
+      - internal
 
   # ── Directus CMS ────────────────────────────────────────────────────────────
   directus:
@@ -40,28 +41,17 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
-    labels:
-      caddy: "cms.${DOMAIN:-novi-tattoo.local}"
-      caddy.reverse_proxy: "{{upstreams 8055}}"
-
-  # ── Caddy (HTTPS + Reverse Proxy) ───────────────────────────────────────────
-  caddy:
-    image: lucaslorentz/caddy-docker-proxy:2.9
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-      - "443:443/udp"   # HTTP/3
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - caddy_data:/data
-      - caddy_config:/config
-    environment:
-      CADDY_INGRESS_NETWORKS: "novi-tattoo_default"
+    networks:
+      - webnet
+      - internal
 
 volumes:
   directus_db:
   directus_uploads:
   directus_extensions:
-  caddy_data:
-  caddy_config:
+
+networks:
+  webnet:
+    external: true   # nginx reverse proxy läuft in diesem Netzwerk
+  internal:
+    driver: bridge   # interne Kommunikation Next.js ↔ Directus

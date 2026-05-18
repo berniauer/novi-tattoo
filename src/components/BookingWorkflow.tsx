@@ -688,7 +688,7 @@ export default function BookingWorkflow() {
   const [form,      setForm]      = useState<InquiryData>(EMPTY_FORM);
   const [refPrev,   setRefPrev]   = useState<string[]>([]);
   const [skinPrev,  setSkinPrev]  = useState<string | null>(null);
-  const sectionRef = useRef<HTMLElement>(null);
+  const sectionRef = useRef<HTMLDivElement>(null);
 
   // Revoke object URLs on unmount
   useEffect(() => {
@@ -828,7 +828,6 @@ export default function BookingWorkflow() {
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <section
-      ref={sectionRef}
       id="booking"
       className="relative bg-ink py-24 md:py-32 px-4 md:px-8 lg:px-16"
       aria-label="Termin anfragen"
@@ -876,7 +875,7 @@ export default function BookingWorkflow() {
         )}
 
         {/* ── Form card ───────────────────────────────────────────── */}
-        <div className="max-w-[580px] mx-auto">
+        <div ref={sectionRef} className="max-w-[580px] mx-auto">
           <motion.div
             className="rounded-2xl border border-border bg-surface p-6 md:p-10 shadow-[0_24px_80px_rgba(0,0,0,0.5)]"
             initial={{ opacity: 0, y: 32 }}

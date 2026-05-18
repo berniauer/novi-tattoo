@@ -80,7 +80,7 @@ jobs:
           script: |
             set -e
 
-            cd /opt/novi-tattoo
+            cd /srv/novi-tattoo
 
             # Neuestes Image ziehen (VPS ist via vps-first-setup.sh bereits bei GHCR eingeloggt)
             docker compose -f docker-compose.prod.yml pull novi-tattoo

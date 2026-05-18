@@ -335,7 +335,7 @@ export default function Footer() {
             viewport={{ once: true }}
             transition={{ delay: 0.25, duration: 0.7 }}
           >
-            © {year} Novi Tattoo · Salzburg · All rights reserved
+            © {year} Novi Tattoo · Salzburg · Made with love
           </motion.p>
         </div>
       </div>

@@ -1,0 +1,13 @@
+.git
+.github
+.next
+node_modules
+humanbody
+directus
+.env*
+*.log
+README.md
+Dockerfile
+docker-compose*.yml
+.dockerignore
+scripts/

@@ -30,8 +30,13 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files — NIEMALS committen
 .env*
+!.env.example
+
+# Lokale Directus-Daten (SQLite + Uploads)
+/directus/database/
+/directus/uploads/
 
 # vercel
 .vercel

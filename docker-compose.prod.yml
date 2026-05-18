@@ -1,0 +1,67 @@
+# ─── PRODUCTION (VPS) ────────────────────────────────────────────────────────
+# Vollständiger Stack: Next.js + Directus + Caddy (HTTPS)
+#
+# Vorbereitung auf dem VPS (einmalig):
+#   1. Repo clonen: git clone https://github.com/berniauer/novi-tattoo /opt/novi-tattoo
+#   2. .env.prod + .env.directus anlegen (siehe .env.example)
+#   3. Caddyfile anpassen (Domain eintragen)
+#   4. docker compose -f docker-compose.prod.yml up -d
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+  # ── Next.js App ─────────────────────────────────────────────────────────────
+  novi-tattoo:
+    image: ghcr.io/berniauer/novi-tattoo:latest
+    restart: unless-stopped
+    expose:
+      - "3000"
+    env_file: .env.prod
+    depends_on:
+      directus:
+        condition: service_healthy
+    labels:
+      caddy: "${DOMAIN:-novi-tattoo.local}"
+      caddy.reverse_proxy: "{{upstreams 3000}}"
+
+  # ── Directus CMS ────────────────────────────────────────────────────────────
+  directus:
+    image: directus/directus:11
+    restart: unless-stopped
+    expose:
+      - "8055"
+    volumes:
+      - directus_db:/directus/database
+      - directus_uploads:/directus/uploads
+      - directus_extensions:/directus/extensions
+    env_file: .env.directus
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8055/server/health"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    labels:
+      caddy: "cms.${DOMAIN:-novi-tattoo.local}"
+      caddy.reverse_proxy: "{{upstreams 8055}}"
+
+  # ── Caddy (HTTPS + Reverse Proxy) ───────────────────────────────────────────
+  caddy:
+    image: lucaslorentz/caddy-docker-proxy:2.9
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"   # HTTP/3
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    environment:
+      CADDY_INGRESS_NETWORKS: "novi-tattoo_default"
+
+volumes:
+  directus_db:
+  directus_uploads:
+  directus_extensions:
+  caddy_data:
+  caddy_config:

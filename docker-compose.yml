@@ -1,0 +1,42 @@
+# ─── LOCAL DEVELOPMENT ────────────────────────────────────────────────────────
+# Startet nur Directus (SQLite) lokal.
+# Next.js läuft daneben normal mit: npm run dev
+#
+# Usage:
+#   docker compose up -d
+#   → Directus Admin: http://localhost:8055
+#   → Next.js:        http://localhost:3000  (separat starten)
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+  directus:
+    image: directus/directus:11
+    restart: unless-stopped
+    ports:
+      - "8055:8055"
+    volumes:
+      - ./directus/database:/directus/database
+      - ./directus/uploads:/directus/uploads
+      - ./directus/extensions:/directus/extensions
+    environment:
+      # ── Core ──────────────────────────────────────────────────────────────
+      SECRET: "local-dev-secret-change-in-prod"
+      ADMIN_EMAIL: "admin@novitattoo.at"
+      ADMIN_PASSWORD: "changeme123"
+
+      # ── Database (SQLite — ideal für lokales Testen) ───────────────────
+      DB_CLIENT: "sqlite3"
+      DB_FILENAME: "/directus/database/data.db"
+
+      # ── CORS — erlaubt lokales Next.js ────────────────────────────────
+      CORS_ENABLED: "true"
+      CORS_ORIGIN: "http://localhost:3000"
+
+      # ── Realtime ──────────────────────────────────────────────────────
+      WEBSOCKETS_ENABLED: "true"
+
+      # ── E-Mail (lokal deaktiviert) ────────────────────────────────────
+      EMAIL_TRANSPORT: "sendmail"
+
+      # ── Instagram Access Token (später befüllen) ──────────────────────
+      INSTAGRAM_ACCESS_TOKEN: ""

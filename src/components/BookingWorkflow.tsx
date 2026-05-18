@@ -688,6 +688,7 @@ export default function BookingWorkflow() {
   const [form,      setForm]      = useState<InquiryData>(EMPTY_FORM);
   const [refPrev,   setRefPrev]   = useState<string[]>([]);
   const [skinPrev,  setSkinPrev]  = useState<string | null>(null);
+  const sectionRef = useRef<HTMLElement>(null);
 
   // Revoke object URLs on unmount
   useEffect(() => {
@@ -761,17 +762,23 @@ export default function BookingWorkflow() {
   }, [step, form]);
 
   // ── Navigation ────────────────────────────────────────────────────────────
+  const scrollToSection = useCallback(() => {
+    sectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
+
   const goNext = useCallback(() => {
     if (!validate()) return;
     setDirection(1);
     setStep((s) => Math.min(s + 1, TOTAL - 1));
-  }, [validate]);
+    setTimeout(scrollToSection, 50);
+  }, [validate, scrollToSection]);
 
   const goBack = useCallback(() => {
     setErrors({});
     setDirection(-1);
     setStep((s) => Math.max(s - 1, 0));
-  }, []);
+    setTimeout(scrollToSection, 50);
+  }, [scrollToSection]);
 
   const handleSubmit = useCallback(async () => {
     if (!validate()) return;
@@ -821,6 +828,7 @@ export default function BookingWorkflow() {
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <section
+      ref={sectionRef}
       id="booking"
       className="relative bg-ink py-24 md:py-32 px-4 md:px-8 lg:px-16"
       aria-label="Termin anfragen"
